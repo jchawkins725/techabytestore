@@ -169,8 +169,9 @@ add_filter( 'woocommerce_get_price_html', 'usc_discounted_price_html', 10, 2 );
  * Apply the saved‐coupon discount to cart item prices.
  */
 
+// Do not manually mutate cart item prices. WooCommerce should apply the saved
+// coupon once via WC()->cart->apply_coupon(), otherwise the discount is doubled.
 // add_action( 'woocommerce_before_calculate_totals', 'usc_apply_saved_coupon_discount', 10, 1 );
-add_action( 'woocommerce_before_calculate_totals', 'usc_apply_saved_coupon_discount', 10, 1 );
 function usc_apply_saved_coupon_discount( $cart ) {
     // 1) Only run once per request
     static $discount_applied = false;
@@ -235,7 +236,8 @@ function usc_apply_saved_coupon_discount( $cart ) {
     }
 }
 
-add_filter( 'woocommerce_cart_item_price', 'usc_discounted_cart_item_price_html', 10, 3 );
+// Disabled with the manual cart price override to avoid stale custom line prices.
+// add_filter( 'woocommerce_cart_item_price', 'usc_discounted_cart_item_price_html', 10, 3 );
 function usc_discounted_cart_item_price_html( $price_html, $cart_item, $cart_item_key ) {
 
     error_log( '-- usc_discounted_cart_item_price_html: Cart item price HTML: ' . $price_html );
@@ -345,7 +347,9 @@ function usc_discounted_cart_item_subtotal_html( $subtotal_html, $cart_item, $ca
     $subtotal_html = '<del>Advertised Subtotal: ' . wc_price( $product->get_price() * $qty ) . '</del> <br/><ins>Your Subtotal: ' . wc_price( $new_subtotal ) . '</ins>';
     return $subtotal_html;
 }
-add_filter( 'woocommerce_cart_item_subtotal', 'usc_discounted_cart_item_subtotal_html', 10, 3 );
+// Disabled with the manual cart price override; WooCommerce coupon totals now
+// remain the source of truth in cart and checkout.
+// add_filter( 'woocommerce_cart_item_subtotal', 'usc_discounted_cart_item_subtotal_html', 10, 3 );
 
 
 // /**
